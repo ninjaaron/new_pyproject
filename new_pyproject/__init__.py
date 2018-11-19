@@ -9,15 +9,18 @@ TEMPLATES = PROJDIR / "templates"
 
 
 @lazycli.script
-def setup(name):
-    path = pathlib.Path(name)
-    easyproc.run(["poetry", "new", name])
-    easyproc.run(["git", "init", name])
-    # pre-commit hook
+def add_hooks(path: pathlib.Path):
     with (TEMPLATES / "pre-commit.sh").open() as fh:
-        precommit = fh.read().format(src_dir=name)
-    with open((path / ".git" / "hooks" / "pre-commit"), "w") as fh:
+        precommit = fh.read().format(src_dir=path)
+    with (path / ".git" / "hooks" / "pre-commit").open("w") as fh:
         fh.write(precommit)
+
+
+@lazycli.script
+def setup(path: pathlib.Path):
+    easyproc.run(["poetry", "new", path])
+    easyproc.run(["git", "init", path])
+    add_hooks(path)
     # add black to pyproject.toml
     with (path / "pyproject.toml").open() as fh:
         pyprojectlines = fh.readlines()

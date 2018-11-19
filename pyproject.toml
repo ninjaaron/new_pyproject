@@ -20,6 +20,10 @@ easyproc = "^0.5.1"
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
 
+[tool.poetry.scripts]
+newpyproject = "new_pyproject:setup.run"
+addpygithooks = "new_pyproject:add_hooks.run"
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
