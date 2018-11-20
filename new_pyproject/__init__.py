@@ -1,35 +1,25 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-__version__ = "0.1.0"
 import pathlib
 import lazycli
 import easyproc
 import shutil
+import os
 
 PROJDIR = pathlib.Path(__file__).parent
 TEMPLATES = PROJDIR / "templates"
+here = pathlib.Path()
 script = lazycli.script()
 
 
 @script.subcommand
-def addhooks(path: pathlib.Path):
+def addhooks(path: pathlib.Path = here):
     with (TEMPLATES / "pre-commit.sh").open() as fh:
         precommit = fh.read().format(src_dir=path)
     with (path / ".git" / "hooks" / "pre-commit").open("w") as fh:
         fh.write(precommit)
-
-
-@script.subcommand
-def addblack(path):
-    with (path / "pyproject.toml").open() as fh:
-        pyprojectlines = fh.readlines()
-    with (TEMPLATES / "black.toml").open() as fh:
-        blacklines = fh.readlines()
-    blacklines.append("\n")
-    blacklines += pyprojectlines
-    with (path / "pyproject.toml").open("w") as fh:
-        fh.writelines(blacklines)
+        os.chmod(fh.name, 0o755)
 
 
 @script.subcommand
@@ -37,8 +27,6 @@ def new(path: pathlib.Path):
     easyproc.run(["poetry", "new", path])
     easyproc.run(["git", "init", path])
     addhooks(path)
-    addblack(path)
-    # add black to pyproject.toml
     # add license and .gitignore
     shutil.copy2(PROJDIR / "LICENSE", path)
     shutil.copy2(PROJDIR / ".gitignore", path)
