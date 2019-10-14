@@ -23,10 +23,23 @@ def addhooks(path: pathlib.Path = here):
 
 
 @script.subcommand
+def license(path: pathlib.Path = here):
+    shutil.copy2(PROJDIR / "LICENSE", path)
+
+
+@script.subcommand
+def gitignore(path: pathlib.Path = here):
+    shutil.copy2(PROJDIR / ".gitignore", path)
+
+
+@script.subcommand
+def init(path: pathlib.Path = here):
+    for func in (addhooks, license, gitignore):
+        func(path)
+
+
+@script.subcommand
 def new(path: pathlib.Path):
     easyproc.run(["poetry", "new", path])
     easyproc.run(["git", "init", path])
-    addhooks(path)
-    # add license and .gitignore
-    shutil.copy2(PROJDIR / "LICENSE", path)
-    shutil.copy2(PROJDIR / ".gitignore", path)
+    init(path)
