@@ -10,7 +10,7 @@ import os
 
 PROJDIR = pathlib.Path(__file__).parent
 TEMPLATES = PROJDIR / "templates"
-here = pathlib.Path()
+here = pathlib.Path().absolute()
 script = lazycli.script()
 
 
@@ -58,6 +58,7 @@ def extract_setupfile(path: pathlib.Path = here):
     extracted = pathlib.Path(filename)
     extracted.rename(path / "setup.py")
     extracted.parent.rmdir()
+    os.chdir(here)
 
 
 @script.subcommand
