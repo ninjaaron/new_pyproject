@@ -5,6 +5,7 @@ import pathlib
 import lazycli
 import easyproc
 import shutil
+import tarfile
 import os
 
 PROJDIR = pathlib.Path(__file__).parent
@@ -36,6 +37,27 @@ def gitignore(path: pathlib.Path = here):
 def init(path: pathlib.Path = here):
     for func in (addhooks, license, gitignore):
         func(path)
+
+
+@script.subcommand
+def extract_setupfile(path: pathlib.Path = here):
+    path = path.absolute()
+    os.chdir(path)
+    try:
+        os.remove(path / "setup.py")
+    except FileNotFoundError:
+        pass
+    easyproc.run("poetry build")
+    archive_name = sorted((path / "dist").glob("*.tar.gz"))[-1]
+    with tarfile.open(archive_name) as archive:
+        for filename in archive.getnames():
+            if filename.endswith("/setup.py"):
+                break
+        archive.extract(filename)
+
+    extracted = pathlib.Path(filename)
+    extracted.rename(path / "setup.py")
+    extracted.parent.rmdir()
 
 
 @script.subcommand

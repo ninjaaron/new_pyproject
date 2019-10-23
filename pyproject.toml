@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "new_pyproject"
-version = "0.1.1"
+version = "0.2.0"
 description = "automation for my personal projects"
 authors = ["Aaron Christianson <ninjaaron@gmail.com>"]
 license = "MPL-2.0"
