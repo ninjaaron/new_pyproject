@@ -43,6 +43,8 @@ def init(path: pathlib.Path = here):
 def extract_setupfile(path: pathlib.Path = here):
     path = path.absolute()
     os.chdir(path)
+    if not pathlib.Path("pyproject.toml").exists():
+        return
     try:
         os.remove(path / "setup.py")
     except FileNotFoundError:
@@ -59,6 +61,28 @@ def extract_setupfile(path: pathlib.Path = here):
     extracted.rename(path / "setup.py")
     extracted.parent.rmdir()
     os.chdir(here)
+
+
+@script.subcommand
+def install_e(path: pathlib.Path = here, user=False):
+    cmd = ["pip", "install"]
+    if user:
+        cmd.append("--user")
+    cmd += ["-e", "."]
+    if not (path / "pyproject.toml").exists():
+        cmd[-1] = str(path)
+        easyproc.run(cmd)
+        return
+
+    extract_setupfile(path)
+    os.chdir(path)
+    os.rename("pyproject.toml", "pyproject.moved.toml")
+    try:
+        easyproc.run(cmd)
+    finally:
+        os.rename("pyproject.moved.toml", "pyproject.toml")
+        os.remove("setup.py")
+        os.chdir(here)
 
 
 @script.subcommand
